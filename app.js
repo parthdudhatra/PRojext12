@@ -24,9 +24,7 @@ mongoose.connect("mongodb+srv://parth:QTgHowBxcjmbSfzi@cluster0.7wozhbs.mongodb.
 
 app.use('/auth',authRoute)
 
-app.use((req, res, next) =>{
-    res.send("Hello world")
-})
+
 
 app.listen(port , () => {
     console.log("server is connected", port)
