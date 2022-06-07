@@ -123,30 +123,31 @@ router.get('/', (req, res, next) => {
 //same as this all
 // Get Book by Id
 
-router.get('/read-employee/:id', (req, resw, next) => {
-    Employee.findById(req.params.id,(error , data) => {
-        if(error) {
-            return next (error)
-        }else{
-            res.json(data)
-        }
-    })
-})
+router.get("/:id", (req, res, next) => {
+    Employee.findById(req.params.id).then(post => {
+      if (post) {
+        res.status(200).json(post);
+      } else {
+        res.status(404).json({ message: "Post not found!" });
+      }
+    });
+  });
 
 // Update the employee
 
-router.put('/update-employee/:id', (req,res, next) => {
-    Employee.findByIdAndUpdate(req.params.id,{ 
+router.put("/:id", (req, res, next) => {
+    Employee.findByIdAndUpdate(req.params.id, {
         $set : req.body
     },(error, data) => {
-        if(error) { 
-            return next(error);
+        if(error) {
+            return next(error)
+            console.log(error)
         }else{
             res.json(data)
             console.log("Employee updated successfully")
         }
     })
-})
+  });
 
 // Detete the employee
 
