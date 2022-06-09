@@ -12,7 +12,7 @@ const res = require('express/lib/response');
 
 // signup
 router.post('/signup',(req, res) => {
-    bcrypt.hash(req.body.password, 2, (err, hash) => {
+    bcrypt.hash(req.body.password, 10, (err, hash) => {
         if(err) {
             return res.json({ success : false, message : "Massing issue"})
         } else {
@@ -41,13 +41,16 @@ router.post('/login',(req, res) => {
             if(result.length < 1) {
                 return res.json({ success :false, message : "User Not Found"})
             }
-            const user = result;
+            const user = result[0];
+            console.log("....", result)
+            console.log(",.,.,.,.,", req.body.password)
+            console.log(user._id)
             bcrypt.compare(req.body.password, user.password, (ret , err) => {
                 if(ret){
                     const payload = {
-                        userId : user[0]._id
+                        userId : user._id
                     }
-                    console.log(user[0]._id)
+                    console.log("------",user._id)
                     const token = jwt.sign(payload, 'parth')
                     return res.json({ success : true, token : token ,message : "Login Successfully"})
                 }else {
