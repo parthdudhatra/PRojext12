@@ -38,55 +38,22 @@ router.post("/signup", (req, res) => {
   });
 });
 
-// login
-// router.post('/login',(req, res) => {
-//     User.find({email : req.body.email})
-//         .exec()
-//         .then((result) => {
-//             if(result.length < 1) {
-//                 return res.json({ success :false, message : "User Not Found"})
-//             }
-//             const user = result[0];
-//             console.log("....", result)
-//             console.log(",.,.,.,.,", req.body.password)
-//             console.log(user._id)
-//             bcrypt.compare(req.body.password, user.password, (ret , err) => {
-//                 if(ret){
-//                     const payload = {
-//                         userId : user._id
-//                     }
-//                     console.log("------",user._id)
-//                     const token = jwt.sign(payload, 'parth')
-//                     return res.json({ success : true, token : token ,message : "Login Successfully"})
-//                 }else {
-//                     return res.json( {success : false, message : "Password do not match"})
-//                 }
-//             })
-//         }).catch(err => {
-//             res.json({ success :false, message : "Auth Failed"})
-//         })
-// });
-
-router.post("/login", (req, res) => {
-  User.find({ email: req.body.email })
-
-    .exec()
-
-    .then((result) => {
-      if (result.length < 1) {
-        return res.json({ success: false, message: "User not found" });
-      }
-
-      const user = result[0];
-
+router.post("/login", async(req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(400).json({ success :false, message : "User Not Found"})
+    }
+  // checking password
+    const validPass = await bcrypt.compare(req.body.password, user.password);
+    if (!validPass) {
+      return res.status(400).send("Invalid password");
+    }
       bcrypt.compare(req.body.password, user.password, (err, result) => {
         if (result) {
           const payload = {
             usreId: user._id,
           };
-
-          const token = jwt.sign(payload, "web");
-
+          const token = jwt.sign(payload, "parth");
           return res.json({
             success: true,
             token: token,
@@ -98,12 +65,9 @@ router.post("/login", (req, res) => {
             message: "Password do not macthed",
           });
         }
-      });
-    })
-    .catch((err) => {
-      res.json({ success: false, message: "Auth Failed" });
     });
-});
+})
+ 
 // profile
 router.get("/profile", checkAuth, (req, res) => {
   const userId = req.userData.userId;
@@ -116,32 +80,6 @@ router.get("/profile", checkAuth, (req, res) => {
       res.json({ success: false, message: "Server error" });
     });
 });
-
-// router.post('/create', (req, res, next) => {
-//     const employee = new Employee({
-//         _id : req.body.id,
-//         firstName : req.body.firstName,
-//         lastName : req.body.lastName,
-//         email : req.body.email,
-//         mobile : req.body.mobile,
-//         salary : req.body.salary
-//     });
-//     employee.save().then((createdEmployee) => {
-//         res.json({ success : true, message : "Employee added successfully", employeeId : createdEmployee._id})
-//    }).catch((err) => {
-//        if(err.code === 11000){
-//            return res.json({ success: false, message : "Something is wrong"})
-//        }
-//    })
-// })
-
-// router.get("/list",(req, res, next) => {
-//     Employee.find().then((document) => {
-//         return res.json( { success : true , message : "Data Fetched successfully", employees : document})
-//     }).catch((err) => {
-//         return res.json ({success : false , message : "Data not Fetched successfully"})
-//     })
-// })
 
 // Add Employee
 
